@@ -6,15 +6,18 @@ using UnityEngine.InputSystem;
 
 public class BallHandler : MonoBehaviour
 {
-    [SerializeField]private Rigidbody2D ball_rigi;
-    [SerializeField]private SpringJoint2D ball_sprjt;
-    [SerializeField]private float detach_time;
+    [SerializeField]private GameObject ball_pre;
+    [SerializeField]private Rigidbody2D pivot_rigi;
+    private Rigidbody2D ball_rigi;
+    private SpringJoint2D ball_sprjt;
+    [SerializeField]private float detach_time,respawn_time;
     private Camera camera_main;
     private bool dragging;
     // Start is called before the first frame update
     void Start()
     {
         camera_main = Camera.main;
+        Spawn_Ball();
     }
 
     // Update is called once per frame
@@ -30,6 +33,7 @@ public class BallHandler : MonoBehaviour
             {
                 Launch_Ball();
             }
+            dragging = false;
             return;
         }
         else
@@ -53,5 +57,13 @@ public class BallHandler : MonoBehaviour
     {
         ball_sprjt.enabled = false;
         ball_sprjt = null;
+        Invoke(nameof(Spawn_Ball),respawn_time);
+    }
+    private void Spawn_Ball()
+    {
+        GameObject ball_ins = Instantiate(ball_pre, pivot_rigi.position, Quaternion.identity);
+        ball_rigi = ball_ins.GetComponent<Rigidbody2D>();
+        ball_sprjt = ball_ins.GetComponent<SpringJoint2D>();
+        ball_sprjt.connectedBody = pivot_rigi;
     }
 }
